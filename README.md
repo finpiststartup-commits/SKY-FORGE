@@ -4,7 +4,7 @@
 
 Sky Forge is a powerful Terraform project designed to seamlessly build and manage cloud infrastructure with precision and efficiency. It empowers teams to sculpt scalable, reliable, and secure environments in the cloud, combining automation with best practices to deliver robust infrastructure-as-code solutions. Whether deploying networks, compute resources, or storage, Sky Forge provides a solid foundation for modern cloud-native applications, enabling rapid innovation and operational excellence.
 
-This repository contains a modular Terraform configuration for managing Google Cloud Platform infrastructure.
+This repository contains a modular Terraform configuration for managing Google Cloud Platform infrastructure with remote state management for team collaboration.
 
 ## 📁 Project Structure
 
@@ -15,7 +15,6 @@ SkyForge/
 ├── providers.tf         # Provider configuration
 ├── variables.tf         # Variable definitions
 ├── outputs.tf          # Output values
-├── terraform.tfvars    # Environment-specific variable values
 ├── .gitignore          # Git ignore file
 ├── README.md           # This file
 └── modules/            # Terraform modules
@@ -43,7 +42,7 @@ SkyForge/
   - Internal traffic (TCP/UDP/ICMP)
   - SSH access (port 22)
   - RDP access (port 3389)
-  - ICMP (ping)
+  - Database access (ports 5432, 6379, 27017, 3306)
 
 ### Monitoring
 - **Flow Logs**: Enabled on all subnets for network monitoring
@@ -60,9 +59,33 @@ This configuration uses Google Secret Manager for service account credentials:
 1. Ensure you have access to the secret `finpist-terraform-dev-sa-key`
 2. The service account should have the necessary permissions
 
+### Remote State Setup (Team Collaboration)
+
+This project is configured with remote state storage in Google Cloud Storage for team collaboration:
+
+1. **Remote State is Already Configured** - The project uses GCS backend with bucket `finpist-terraform-state`
+2. **For New Team Members**:
+   ```bash
+   # Clone the repository
+   git clone <your-repo-url>
+   cd SKY-FORGE
+   
+   # Initialize Terraform (will automatically detect remote backend)
+   terraform init
+   ```
+
+3. **For Existing Team Members**:
+   ```bash
+   # Pull latest changes
+   git pull origin main
+   
+   # Update Terraform
+   terraform init -upgrade
+   ```
+
 ### Initial Setup
 ```bash
-# Initialize Terraform
+# Initialize Terraform (automatically detects remote backend)
 terraform init
 
 # Plan the deployment
@@ -78,18 +101,18 @@ If you have existing resources that need to be imported:
 
 ```bash
 # Import VPC
-terraform import google_compute_network.vpc projects/finpist-dev/global/networks/finpist-dev-vpc
+terraform import module.vpc.google_compute_network.vpc projects/finpist-dev/global/networks/finpist-dev-vpc
 
 # Import Subnets
-terraform import google_compute_subnetwork.subnet_web projects/finpist-dev/regions/asia-south1/subnetworks/finpist-dev-web
-terraform import google_compute_subnetwork.subnet_data projects/finpist-dev/regions/asia-south1/subnetworks/finpist-dev-data
-terraform import google_compute_subnetwork.subnet_api projects/finpist-dev/regions/asia-south1/subnetworks/finpist-dev-api
+terraform import module.vpc.google_compute_subnetwork.subnet_web projects/finpist-dev/regions/asia-south1/subnetworks/development-web
+terraform import module.vpc.google_compute_subnetwork.subnet_data projects/finpist-dev/regions/asia-south1/subnetworks/development-data
+terraform import module.vpc.google_compute_subnetwork.subnet_api projects/finpist-dev/regions/asia-south1/subnetworks/development-api
 
 # Import Firewall Rules
-terraform import google_compute_firewall.default_allow_internal projects/finpist-dev/global/firewalls/default-allow-internal
-terraform import google_compute_firewall.default_allow_ssh projects/finpist-dev/global/firewalls/default-allow-ssh
-terraform import google_compute_firewall.default_allow_rdp projects/finpist-dev/global/firewalls/default-allow-rdp
-terraform import google_compute_firewall.default_allow_icmp projects/finpist-dev/global/firewalls/default-allow-icmp
+terraform import module.vpc.google_compute_firewall.default_allow_internal projects/finpist-dev/global/firewalls/default-allow-internal
+terraform import module.vpc.google_compute_firewall.default_allow_ssh projects/finpist-dev/global/firewalls/default-allow-ssh
+terraform import module.vpc.google_compute_firewall.default_allow_rdp projects/finpist-dev/global/firewalls/default-allow-rdp
+terraform import module.vpc.google_compute_firewall.default_allow_icmp projects/finpist-dev/global/firewalls/allow-database
 ```
 
 ## 🔧 Configuration
@@ -143,11 +166,38 @@ terraform destroy
 ## 📝 Best Practices
 
 1. **Version Control**: Always commit your Terraform files to version control
-2. **State Management**: Use remote state storage (GCS, S3, etc.) for team collaboration
+2. **State Management**: Remote state is configured in GCS for team collaboration
 3. **Variables**: Use variables for all configurable values
 4. **Documentation**: Keep this README updated with any changes
 5. **Testing**: Test changes in a development environment first
-6. **Backup**: Regularly backup your Terraform state
+6. **Backup**: Remote state provides automatic backup and versioning
+
+## 🤝 Team Collaboration
+
+### Remote State Benefits
+- **State Locking**: Prevents concurrent modifications
+- **Centralized State**: Accessible to all team members
+- **State Versioning**: Automatic backup and recovery
+- **Team Workflow**: Multiple developers can work simultaneously
+
+### Collaboration Workflow
+1. **Always pull before making changes**:
+   ```bash
+   git pull origin main
+   terraform init -upgrade
+   ```
+
+2. **Use workspaces for different environments**:
+   ```bash
+   terraform workspace new staging
+   terraform workspace select staging
+   ```
+
+3. **Review plans before applying**:
+   ```bash
+   terraform plan -out=tfplan
+   terraform apply tfplan
+   ```
 
 ## 🤝 Contributing
 

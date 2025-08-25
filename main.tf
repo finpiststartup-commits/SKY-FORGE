@@ -13,13 +13,13 @@
 #
 # To import existing resources:
 # terraform import module.vpc.google_compute_network.vpc projects/finpist-dev/global/networks/finpist-dev-vpc
-# terraform import module.vpc.google_compute_subnetwork.subnet_web projects/finpist-dev/regions/asia-south1/subnetworks/finpist-dev-web
-# terraform import module.vpc.google_compute_subnetwork.subnet_data projects/finpist-dev/regions/asia-south1/subnetworks/finpist-dev-data
-# terraform import module.vpc.google_compute_subnetwork.subnet_api projects/finpist-dev/regions/asia-south1/subnetworks/finpist-dev-api
+# terraform import module.vpc.google_compute_subnetwork.subnet_web projects/finpist-dev/regions/asia-south1/subnetworks/development-web
+# terraform import module.vpc.google_compute_subnetwork.subnet_data projects/finpist-dev/regions/asia-south1/subnetworks/development-data
+# terraform import module.vpc.google_compute_subnetwork.subnet_api projects/finpist-dev/regions/asia-south1/subnetworks/development-api
 # terraform import module.vpc.google_compute_firewall.default_allow_internal projects/finpist-dev/global/firewalls/default-allow-internal
 # terraform import module.vpc.google_compute_firewall.default_allow_ssh projects/finpist-dev/global/firewalls/default-allow-ssh
 # terraform import module.vpc.google_compute_firewall.default_allow_rdp projects/finpist-dev/global/firewalls/default-allow-rdp
-# terraform import module.vpc.google_compute_firewall.default_allow_icmp projects/finpist-dev/global/firewalls/default-allow-icmp
+# terraform import module.vpc.google_compute_firewall.default_allow_icmp projects/finpist-dev/global/firewalls/allow-database
 # =============================================================================
 
 # VPC Module
